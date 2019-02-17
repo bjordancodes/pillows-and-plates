@@ -1,20 +1,24 @@
 const express = require('express');
 const { json } = require("body-parser");
-const firebase = require("firebase");
+const admin = require("firebase-admin");
 require("firebase/database");
 require("dotenv").config();
+
+const serviceAccount = require("../../serviceAccountKey.json");
 
 const app = express();
 app.use(json());
 
-var config = {
-    apiKey: process.env.API_KEY,
-    authDomain: process.env.AUTH_DOMAIN,
-    databaseURL: process.env.DATABASE_URL,
-    storageBucket: process.env.STORAGE_BUCKET
-  };
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://pillows-and-plates.firebaseio.com"
+  });
 
-firebase.initializeApp(config);
+  const { newOrg, getOrg, updateOrg } = require("./controllers/nameController");
+
+app.post("/name", newOrg);
+app.get("/name", getOrg);
+app.put("/name", updateOrg);
 
 const port = 3001;
 app.listen(port, () => {
